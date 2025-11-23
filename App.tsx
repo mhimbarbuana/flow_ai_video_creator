@@ -7,7 +7,8 @@ import ApiKeyModal from './components/ApiKeyModal';
 import EditorTools from './components/EditorTools';
 import ChatInterface from './components/ChatInterface';
 import AudioStudio from './components/AudioStudio';
-import { Clip, GenerationMode, ModelType, AspectRatio, ImageSize } from './types';
+import PromptHistory from './components/PromptHistory';
+import { Clip, GenerationMode, ModelType, AspectRatio, ImageSize, HistoryItem } from './types';
 import { generateVideoVeo, generateImage, editImage, checkApiKey } from './services/geminiService';
 
 const App: React.FC = () => {
@@ -19,9 +20,21 @@ const App: React.FC = () => {
     const [showKeyModal, setShowKeyModal] = useState(false);
     const [apiKeyChecked, setApiKeyChecked] = useState(false);
     
+    // History State
+    const [history, setHistory] = useState<HistoryItem[]>(() => {
+        const saved = localStorage.getItem('prompt_history');
+        return saved ? JSON.parse(saved) : [];
+    });
+    const [prefillPrompt, setPrefillPrompt] = useState<string>('');
+    
     // Editor State
     const [editorAspectRatio, setEditorAspectRatio] = useState<AspectRatio>('16:9');
     const [showEditorTools, setShowEditorTools] = useState(false);
+
+    // Persist history
+    useEffect(() => {
+        localStorage.setItem('prompt_history', JSON.stringify(history));
+    }, [history]);
 
     // Initial API Key Check
     useEffect(() => {
@@ -53,6 +66,17 @@ const App: React.FC = () => {
         
         // If we haven't officially 'checked' it yet (edge case), mark as checked
         if (!apiKeyChecked) setApiKeyChecked(true);
+
+        // Add to history
+        const historyItem: HistoryItem = {
+            id: Date.now().toString(),
+            prompt,
+            mode,
+            timestamp: Date.now(),
+            model,
+            aspectRatio
+        };
+        setHistory(prev => [historyItem, ...prev]);
 
         const newId = Date.now().toString();
         const isImageMode = mode === GenerationMode.IMAGE_GENERATION || mode === GenerationMode.IMAGE_EDIT;
@@ -98,6 +122,20 @@ const App: React.FC = () => {
         }
     };
 
+    const handleReusePrompt = (item: HistoryItem) => {
+        setMode(item.mode);
+        setPrefillPrompt(item.prompt);
+        setActiveTab('editor');
+    };
+
+    const handleDeleteHistory = (id: string) => {
+        setHistory(prev => prev.filter(item => item.id !== id));
+    };
+
+    const handleClearHistory = () => {
+        setHistory([]);
+    };
+
     const handleKeySelected = async () => {
         const hasKey = await checkApiKey();
         if (hasKey) {
@@ -120,6 +158,13 @@ const App: React.FC = () => {
                 return <ChatInterface />;
             case 'audio':
                 return <AudioStudio />;
+            case 'history':
+                return <PromptHistory 
+                    history={history} 
+                    onReuse={handleReusePrompt} 
+                    onDelete={handleDeleteHistory}
+                    onClear={handleClearHistory}
+                />;
             case 'projects':
                 return <div className="p-8 text-zinc-500 text-center">Projects list coming soon...</div>;
             case 'assets':
@@ -155,6 +200,7 @@ const App: React.FC = () => {
                                 setMode={setMode} 
                                 onGenerate={handleGenerate}
                                 isGenerating={isGenerating}
+                                prefillPrompt={prefillPrompt}
                             />
                         )}
                     </div>

@@ -7,9 +7,10 @@ interface PromptInputProps {
     setMode: (mode: GenerationMode) => void;
     onGenerate: (prompt: string, model: string, aspectRatio: AspectRatio, image?: string, lastImage?: string, size?: ImageSize) => void;
     isGenerating: boolean;
+    prefillPrompt?: string; // New prop for history reuse
 }
 
-const PromptInput: React.FC<PromptInputProps> = ({ mode, setMode, onGenerate, isGenerating }) => {
+const PromptInput: React.FC<PromptInputProps> = ({ mode, setMode, onGenerate, isGenerating, prefillPrompt }) => {
     const [prompt, setPrompt] = useState('');
     const [selectedModel, setSelectedModel] = useState<string>(ModelType.VEO_3_FAST);
     const [selectedStyle, setSelectedStyle] = useState<string>('none');
@@ -22,6 +23,13 @@ const PromptInput: React.FC<PromptInputProps> = ({ mode, setMode, onGenerate, is
     
     const fileInputRefStart = useRef<HTMLInputElement>(null);
     const fileInputRefStyle = useRef<HTMLInputElement>(null);
+
+    // Populate prompt when prefillPrompt changes
+    useEffect(() => {
+        if (prefillPrompt) {
+            setPrompt(prefillPrompt);
+        }
+    }, [prefillPrompt]);
 
     // Reset settings when mode changes
     useEffect(() => {

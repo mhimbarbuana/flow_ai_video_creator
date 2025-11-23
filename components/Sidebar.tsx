@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, Film, Image as ImageIcon, Settings, Scissors, MessageSquare, Mic } from 'lucide-react';
+import { LayoutGrid, Film, Image as ImageIcon, Settings, Scissors, MessageSquare, Mic, History } from 'lucide-react';
 
 interface SidebarProps {
     activeTab: string;
@@ -15,6 +15,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onOpenSettin
         { id: 'chat', icon: MessageSquare, label: 'Assistant' },
         { id: 'audio', icon: Mic, label: 'Audio Studio' },
         { id: 'assets', icon: ImageIcon, label: 'Assets' },
+        { id: 'history', icon: History, label: 'History' },
     ];
 
     return (

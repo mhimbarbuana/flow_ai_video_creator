@@ -36,6 +36,15 @@ export interface Project {
   lastModified: Date;
 }
 
+export interface HistoryItem {
+  id: string;
+  prompt: string;
+  mode: GenerationMode;
+  timestamp: number;
+  model: string;
+  aspectRatio: string;
+}
+
 export enum ModelType {
   VEO_2_FAST = 'veo-2-fast', 
   VEO_3_FAST = 'veo-3.1-fast-generate-preview',

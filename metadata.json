@@ -1,0 +1,7 @@
+{
+  "name": "Flow AI Video Creator",
+  "description": "A cinematic video creation tool powered by Google Veo and Gemini models. Generate videos from text, images, and ingredients.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
